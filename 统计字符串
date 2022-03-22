@@ -1,0 +1,33 @@
+#include<stdio.h>
+int main()
+ {
+char str1[]={"how old are you? fine thanks and you?"};
+char str2[]={"you"};
+char *p1=str1,*p2=str2;
+int i=0,j=0;
+int c=0;
+while(p1[i]!='\0')
+   {
+        if(p2[j]==p1[i])
+       {
+           if(p2[++j]=='\0')
+              c++;
+         i++;
+                while(p1[i]==p2[j])
+            {
+                    i++;
+                    j++;
+                    if(p2[j]=='\0')
+                   {
+                          c++;
+                          j=0;
+                          break;
+                   }
+              }
+                j=0;
+          }
+           i++;
+   }
+     printf("%s中有%d个%s\n",p1,c,p2);
+     return 0;
+}
