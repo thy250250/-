@@ -1,0 +1,96 @@
+#include <stdio.h>
+#include <math.h>
+int strToInt(char str[]);
+int main()
+{	
+
+char buf[10]={'\0'};//临时缓存数字字符串数组	
+double  values[10]={0};// 操作数数组	
+int i=0,j=0,t=0,k=0;
+char abc[100]={'\0'};
+char bjx[50]={'\0'};
+printf("请输入一个数学表达式：");
+gets(abc);
+double result=0;	
+while(abc[i] != '\0')	
+{			
+	if(abc[i]>='0' && abc[i]<='9')
+	{			
+		t=0;			
+		while(abc[i]>='0' && abc[i]<='9')		
+		{			
+			buf[t] =abc[i];		
+			i++;		
+			t++;			
+		}		
+		buf[t]='\0';		
+		values[j]=strToInt(buf);	
+		if(abc[i]=='.' 	)
+		{
+			i++;
+			t=0;	
+			while(abc[i]>='0' && abc[i]<='9')	
+			{	
+			    buf[t] =abc[i];		
+				i++;		
+				t++;
+			}	
+		    buf[t]='\0';		
+		
+			
+			values[j]=values[j]+strToInt(buf)/(double)(pow(10,t));
+ 
+		}
+		j++;	
+
+	}
+else 
+
+{ 
+	bjx[k++]=abc[i];	
+               i++;	
+}
+	
+
+}		
+ 
+	i=0;
+	
+	result = values[0];
+    while(bjx[i] !='\0')
+	{
+		
+		switch(bjx[i])
+		{
+			case '+':
+				result = result + values[i+1];
+				break;
+			case '-':
+				result = result - values[i+1];
+				break;
+			case '*':
+				result = result * values[i+1];
+				break;
+			case '/':
+				result = result / values[i+1];
+				break;
+	
+		}
+		i=i+1;
+	
+	}
+printf("%lf\n",result);
+	return 0;
+}
+int strToInt(char abc[])
+
+{	
+int num=0;	
+int i=0;
+	while(abc[i] != '\0')	
+{		
+num=num*10 +(abc[i]-'0');		
+i=i+1;	
+}
+	return num ;
+}
