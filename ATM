@@ -1,0 +1,40 @@
+#include<stdio.h>
+#include<stdio.h>
+#include<string.h>
+struct Transaction
+{
+	char username [100];
+	time_t timestamp;
+	int type;
+	int amount;
+	struct Transaction * next;
+};
+typedef struct Transaction transaction;
+Transaction * thead=NULL;
+Transaction * tTail=NULL;
+struct Account
+{
+	char username[100];
+	char password[100];
+	int money;
+	struct Account *next;
+};
+typedef struct Account Account;
+Account * head=NULL;
+Account * tail=NULL;
+Account * curAccount=NULL;
+int findAccount(Account a)
+{
+	Account *curP=head;
+	while(curP!=NULL)
+	{
+		if((strcmp(curP->username,a.username)==0)&&(strcmp(curP->password,a.password)==0))
+		{
+			curAccount=curP;
+			return 1;
+		}
+		curP=curP->next;
+	}
+	return 0;
+}
+ 
