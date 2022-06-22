@@ -37,4 +37,52 @@ int findAccount(Account a)
 	}
 	return 0;
 }
- 
+void updatePassword()
+ {
+ 	printf("请输入旧密码：\n");
+ 	char oldPssword[100]={'\0'};
+ 	scanf("%s",updatePassword);
+ 	if(strcmp(oldPassword,curAccount->password)==0)
+ 	{
+ 		printf("请输入新密码:\n");
+ 		scanf("%s",curAccount->password);
+ 		printf("修改成功！\n") ;
+	 }
+	 else
+	 {
+	 	printf("旧密码输入错误，拒绝修改！\n");
+	 }
+	 
+  } 
+  void drawMoney()
+  {
+  	printf("请输入取款金额: ");
+  	int money;
+  	scanf("%d",&money);
+  	if(curAccount->money>=money)
+  	{
+  		curAccount->money-=money;
+		printf("取款成功！\n");
+		Transaction * newNode=(Transaction *)malloc(sizeof(Transaction));
+		newNode->next=NULL;
+		strcpy(newNode->username,curAccount->username);
+		newNode->timestamp=time(NULL);
+		 newNode->type=1;
+		 newNode->amount=money;
+		 if(tHead==NULL) 
+		 {
+		 tHead=newNode;
+		 tTail=newNode;
+	     }
+	     else
+	     {
+	     	tTail->next=newNode;
+	     	tTail=newNode;
+		 }
+	}
+		 else
+		 {
+		 	printf("余额不足！\n");
+		 } 
+   }
+   
