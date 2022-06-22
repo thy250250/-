@@ -1,6 +1,8 @@
 #include<stdio.h>
-#include<stdio.h>
+#include<stdlib.h>
 #include<string.h>
+#include<time.h>
+int language;
 struct Transaction
 {
 	char username [100];
@@ -14,6 +16,8 @@ Transaction * thead=NULL;
 Transaction * tTail=NULL;
 struct Account
 {
+	char name[100];
+	char Carid[50];
 	char username[100];
 	char password[100];
 	int money;
@@ -33,11 +37,11 @@ int findAccount(Account a)
 			curAccount=curP;
 			return 1;
 		}
-		curP=curP->next;
+		curP=curP->next; 
 	}
 	return 0;
 }
-void updatePassword()
+ void updatePassword()
  {
  	printf("请输入旧密码：\n");
  	char oldPssword[100]={'\0'};
@@ -84,5 +88,4 @@ void updatePassword()
 		 {
 		 	printf("余额不足！\n");
 		 } 
-   }
-   
+  }
