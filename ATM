@@ -1,91 +1,443 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include<time.h>
+#include"stdio.h"
+#include"stdlib.h"
+#include"string.h"
+#include"time.h"
 int language;
 struct Transaction
 {
-	char username [100];
-	time_t timestamp;
-	int type;
-	int amount;
-	struct Transaction * next;
+	char username[100];
+	time_t timestamp;//时间戳 
+	int type;//0-取款,1-存款
+	int amount;//数额
+	struct Transaction* next; 
 };
-typedef struct Transaction transaction;
-Transaction * thead=NULL;
-Transaction * tTail=NULL;
+typedef struct Transaction Transaction;
+Transaction*Head=NULL;
+Transaction*Tail=NULL;
 struct Account
 {
 	char name[100];
 	char Carid[50];
-	char username[100];
-	char password[100];
+	char username[50];
+	char password[50];
 	int money;
-	struct Account *next;
+	struct Account*next;
 };
 typedef struct Account Account;
-Account * head=NULL;
-Account * tail=NULL;
-Account * curAccount=NULL;
+Account*head=NULL;//指向头结点的指针 
+Account*tail=NULL;//指向尾结点的指针
+Account*curpAccount=NULL;//记录当前记录 
+Account*otherAccount=NULL;//对方账户 
+void loadData()
+{
+	FILE*fp=fopen("F:/atm.txt","r");
+	if(fp!=NULL)
+	{
+		while(!feof(fp))
+		{
+			Account*newNode=(Account*)malloc(sizeof(Account));//申请一块内存空间，将其地址赋值给指针newNode 
+			newNode->next=NULL;
+			int rest=fscanf(fp,"%s %s %s %s %d\n",newNode->name,newNode->Carid,newNode->username,newNode->password,&newNode->money);
+			if(rest==EOF)
+			{
+				free(newNode);//释放newNode指针指向的堆内存空间 
+				break;
+			}
+			if(head==NULL)
+			{
+				head=newNode;
+				tail=newNode;
+			}
+			else
+			{
+				tail->next=newNode;
+				tail=newNode;
+			}
+		}
+		fclose(fp);
+		if(language==1)
+		printf("加载成功!\n");
+		else if(language==2)
+		printf("Load successful!\n");
+	}
+}
+void signUp()
+{
+	Account a;
+	struct Account*node=(struct Account*)malloc(sizeof(struct Account));
+	if(language==1)
+	printf("请输入姓名:\n");
+	else if(language==2)
+	printf("Input name:\n");
+	scanf("%s",node->name);
+	
+	if(language==1)
+	printf("请输入身份证:\n");
+	else if(language==2)
+	printf("Input ID:\n");
+	scanf("%s",node->Carid);
+	
+	if(language==1)
+	printf("请输入账号:\n");
+	else if(language==2)
+	printf("Input Card username:\n");
+	scanf("%s",node->username);
+	
+	if(language==1)
+	printf("请输入密码:\n");
+	else if(language==2)
+	printf("Input password:\n");
+	scanf("%s",node->password);
+	printf("存入金额:\n");
+	scanf("%d",&node->money);
+
+	node->next=NULL;
+	//将结点添加到链表
+	if(head==NULL)
+	{
+		head=node;
+		tail=node;
+	}
+	else
+	{
+		tail->next=node;
+		tail=node;
+	}
+	if(language==1)
+	{
+		printf("添加成功!\n");
+	}
+	else if(language==2)
+	{
+		printf("added!\n");
+	}
+}
 int findAccount(Account a)
 {
-	Account *curP=head;
-	while(curP!=NULL)
+	Account*curp=head;
+	while(curp!=NULL)
 	{
-		if((strcmp(curP->username,a.username)==0)&&(strcmp(curP->password,a.password)==0))
+		if((strcmp(curp->username,a.username)==0)&&(strcmp(curp->password,a.password)==0))
 		{
-			curAccount=curP;
+			curpAccount=curp;
 			return 1;
 		}
-		curP=curP->next; 
+		curp=curp->next;
+	}
+	return 0;
+} 
+void updatapassword()
+{
+	if(language==1)
+	printf("请输入旧密码:\n");
+	else if(language==2)
+	printf("Please enter your old password:\n");
+	char oldpassword[50];
+	scanf("%s",oldpassword);
+	if(strcmp(oldpassword,curpAccount->password)==0)
+	{
+		if(language==1)
+		printf("请输入新密码:\n");
+		else if(language==2)
+		printf("Please enter a new password:\n");
+		scanf("%s",curpAccount->password);
+		if(language==1)
+		printf("修改成功!\n");
+		else if(language==2)
+		printf("Modification succeeded!\n");
+	}
+	else if(language==1)
+	printf("修改失败!\n");
+	else if(language==2)
+	printf("Password error cannot be repaired!\n");
+}
+void drawmoney()
+{
+	printf("请输入取款金额:\n");
+	int money;
+	scanf("%d",&money);
+	if(curpAccount->money>=money)
+	{
+		curpAccount->money-=money;
+		printf("取款成功!\n");
+		//交易记录
+		Transaction*newnode=(Transaction*)malloc(sizeof(Transaction)); //创建结点
+		//结点初始化
+		newnode->next=NULL;
+		strcpy(newnode->username,curpAccount->username);
+		newnode->timestamp=time(NULL);
+		newnode->type=0;
+		newnode->amount=money;
+		//添加交易记录结点到链表 
+		if(Head==NULL)
+		{
+			Head=newnode;
+			Tail=newnode;
+		}
+		else
+		{
+			Tail->next=newnode;
+			Tail=newnode;
+		}
+	}
+	else
+	{
+		printf("余额不足!\n"); 
+	}
+}
+void saveMoney()
+{
+	printf("请输入存款金额:\n");
+	int money;
+	scanf("%d",&money);
+	curpAccount->money+=money;
+	printf("存款成功!\n");
+//	Transaction*Node=(Transaction*)malloc(sizeof(Transaction));
+//	Node->next=NULL;
+//	strcpy(Node->username,curpAccount->username);
+//	Node->timestamp=time(NULL);
+//	Node->type=1;
+//	Node->amount=money;
+//	if(Head==NULL)
+//	{
+//		Head=NULL;
+//		Tail=NULL;
+//	}
+//	else
+//	{
+//		Tail->next=Node;
+//		Tail=Node;
+//	}
+}
+int findotherAccount(char otherusername[])
+{
+	Account*curp=head;
+	while(curp!=NULL)
+	{
+		if(strcmp(curp->username,otherusername)==0)
+		{
+			otherAccount=curp;
+			return 1;
+		}
+		curp=curp->next;
 	}
 	return 0;
 }
- void updatePassword()
- {
- 	printf("请输入旧密码：\n");
- 	char oldPssword[100]={'\0'};
- 	scanf("%s",updatePassword);
- 	if(strcmp(oldPassword,curAccount->password)==0)
- 	{
- 		printf("请输入新密码:\n");
- 		scanf("%s",curAccount->password);
- 		printf("修改成功！\n") ;
-	 }
-	 else
-	 {
-	 	printf("旧密码输入错误，拒绝修改！\n");
-	 }
-	 
-  } 
-  void drawMoney()
-  {
-  	printf("请输入取款金额: ");
-  	int money;
-  	scanf("%d",&money);
-  	if(curAccount->money>=money)
-  	{
-  		curAccount->money-=money;
-		printf("取款成功！\n");
-		Transaction * newNode=(Transaction *)malloc(sizeof(Transaction));
-		newNode->next=NULL;
-		strcpy(newNode->username,curAccount->username);
-		newNode->timestamp=time(NULL);
-		 newNode->type=1;
-		 newNode->amount=money;
-		 if(tHead==NULL) 
-		 {
-		 tHead=newNode;
-		 tTail=newNode;
-	     }
-	     else
-	     {
-	     	tTail->next=newNode;
-	     	tTail=newNode;
-		 }
+void transfer()
+{
+	printf("请输入对方账户:\n");
+	char otherusername[50];
+	scanf("%s",otherusername);
+	//验证账户的合法性
+	if(findotherAccount(otherusername)) 
+	{
+		printf("请输入转账金额:\n");
+		int money;
+		scanf("%d",&money);
+		//验证金额的合法性
+		if(curpAccount->money>=money)
+		{
+			curpAccount->money-=money;
+			otherAccount->money+=money;
+			printf("转账成功!\n");
+		}
+		else
+		{
+			printf("余额不足\n");
+		}
 	}
-		 else
-		 {
-		 	printf("余额不足！\n");
-		 } 
-  }
+	else
+	{
+		printf("转账失败!\n"); 
+	}
+}
+
+void homepage()
+{
+	system("cls");
+	printf("是否修改密码	//修改密码请按1,不修改请按0\n");
+	int n;
+	scanf("%d",&n);
+	if(n==1)
+	{
+		updatapassword();
+	}
+	printf("是否取款	//取款请按0\n");
+	int x;
+	scanf("%d",&x);
+	if(x==0) 
+	{
+		drawmoney();
+	}
+	printf("是否存款	//存款请按1\n");
+	scanf("%d",&x);
+	if(x==1)
+	{
+		saveMoney();
+	}
+	printf("是否需要转账	//转账请按1");
+	int m;
+	scanf("%d",&m);
+	if(m==1)
+	{
+		transfer();
+	}
+}
+
+void signIn()
+{
+	for(int i=0;i<3;i++)
+	{
+		Account a;
+		if(language==1)
+		printf("请输入账号:\n");
+		else if(language==2)
+		printf("Input Card username:\n");
+		scanf("%s",a.username);
+		if(language==1)
+		printf("请输入密码:\n");
+		else if(language==2)
+		printf("Input password:\n");
+		scanf("%s",a.password);
+		if(findAccount(a))
+		{
+			if(language==1)
+			printf("登陆成功!\n");
+			else if(language==2)
+			printf("Login succeeded!\n");
+			//updatapassword();
+			homepage();
+			return;
+		}
+		else
+		{
+			if(language==1)
+			printf("登陆失败!\n");
+			else if(language==2)
+			printf("Login failed!\n");
+		}
+	}
+}
+void showMenu()
+{
+	while(1)
+	{
+		system("cls");
+		if(language==1)
+		{
+			printf("按1,开户\n");
+			printf("按2,登陆\n");
+			printf("按3,退出\n");
+		}
+		else if(language==2)
+		{
+			printf("press 1,signUp\n");
+			printf("press 2,signIn\n");
+			printf("press 3,singn out\n");
+		}
+		int n;
+		scanf("%d",&n);
+		if(n==1)
+		{
+			signUp();
+		}
+		else if(n==2)
+		{
+			signIn();
+		}
+		else if(n==3)
+		return;
+	}
+}
+void printflist()
+{
+	Account*curp=head;
+	while(curp!=NULL)
+	{
+		printf("%s %s %s %s %d\n",curp->name,curp->Carid,curp->username,curp->password,curp->money);
+		curp=curp->next;
+	}
+}
+void saveData()
+{
+	FILE*fp=fopen("F:/atm.txt","w");
+	if(fp==NULL)
+	return;
+	Account*curp=head;
+	while(curp!=NULL)
+	{
+		fprintf(fp,"%s\t%s\t%s\t%s\t%d\n",curp->name,curp->Carid,curp->username,curp->password,curp->money);
+		curp=curp->next;
+	}
+	fclose(fp);
+}
+void releaseMemory()
+{
+	Account*curp=head;
+	while(curp!=NULL)
+	{
+		Account*next=curp->next;
+		free(curp);
+		curp=next;
+	}
+}
+void saveTransaction()
+{
+	FILE*fp=fopen("F:/Transaction.txt","w");
+	if(fp!=NULL)
+	{
+		Transaction*cur=Head;
+		if(cur!=NULL)
+		{
+			fprintf(fp,"%s %ld %d %d\n",cur->username,cur->timestamp,cur->type,cur->amount);
+			cur=cur->next; 
+		}
+		fclose(fp);
+	}
+}
+void loadTransaction()
+{
+	FILE*fp=fopen("F:/Transaction.txt","r");
+	if(fp!=NULL)
+	{
+		while(!feof(fp))
+		{
+			Transaction*node=(Transaction*)malloc(sizeof(Transaction));
+			node->next=NULL;
+			int rest=fscanf(fp,"%s %ld %d %d",node->username,&node->timestamp,&node->type,&node->amount);
+			if(rest=EOF)
+			{
+				free(node);
+				break;
+			}
+			if(Head==NULL)
+			{
+				Head=NULL;
+				Tail=NULL;
+			}
+			else
+			{
+				Tail->next=node;
+				Tail=node;
+			}
+		}
+		fclose(fp);
+		printf("加载成功!\n");
+	}
+}
+int main()
+{
+	printf("迎接来到铁蛋银行!\n");
+	printf("Welcome to tiedan bank!\n");
+	printf("按1,中文\n");
+	printf("按2,英语\n");
+	scanf("%d",&language);
+	loadData();
+	loadTransaction();
+	showMenu();
+	printflist();
+	saveData();
+	saveTransaction();
+	releaseMemory(); 
+	return 0;
+}
